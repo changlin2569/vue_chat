@@ -1,6 +1,6 @@
 <template>
-  <div>
-    hello world
+  <div id="container">
+    <router-view></router-view>
   </div>
 </template>
 
@@ -26,5 +26,10 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+#container {
+  width: 100%;
+  height: 100%;
 }
 </style>
