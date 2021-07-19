@@ -5,6 +5,9 @@ import ElementPlus from 'element-plus'
 import 'element-plus/lib/theme-chalk/index.css'
 import './assets/css/global.css'
 import axios from 'axios'
+// import VueSocketIO from 'vue-socket.io'
+// import io from 'socket.io-client'
+// const socket = io('http://localhost:8083')
 
 // 设置请求默认地址
 axios.defaults.baseURL = 'http://localhost:3001'
@@ -18,5 +21,6 @@ axios.interceptors.request.use(config => {
 })
 const app = createApp(App)
 app.config.globalProperties.$http = axios
+// app.config.globalProperties.$socket = socket
 app.use(ElementPlus)
 app.use(router).mount('#app')

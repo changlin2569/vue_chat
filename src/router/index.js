@@ -1,11 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import Login from './../components/Login/Login.vue'
 import Home from './../components/Home.vue'
+import MsgList from './../components/MsgList/MsgList.vue'
 
 const routes = [
   {
     path: '/',
-    component: Login
+    redirect: '/login'
   },
   {
     path: '/login',
@@ -13,7 +14,13 @@ const routes = [
   },
   {
     path: '/home',
-    component: Home
+    component: Home,
+    children: [
+      {
+        path: '/msgList',
+        component: MsgList,
+      }
+    ]
   }
 ]
 
