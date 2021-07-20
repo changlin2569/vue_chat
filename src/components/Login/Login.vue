@@ -84,7 +84,9 @@ export default {
         }
         ElMessage.success(data.msg)
         window.sessionStorage.setItem('token', data.token)
+        window.sessionStorage.setItem('name', loginForm.name)
         router.push('/home')
+        proxy.$socket.emit('up', loginForm.name)
       })
     }
 

@@ -7,7 +7,7 @@
             <li class="avatar">
               <img src="./../assets/img/avatar.jpg" alt="" />
             </li>
-            <li @click="openChat">
+            <li @click="selectHandle('chat')">
               <i
                 :class="
                   option === 'chat'
@@ -16,7 +16,7 @@
                 "
               ></i>
             </li>
-            <li @click="openUser">
+            <li @click="selectHandle('user')">
               <i
                 :class="
                   option === 'user' ? 'el-icon-user-solid' : 'el-icon-user'
@@ -40,24 +40,20 @@ export default {
   setup() {
     const router = useRouter()
     const option = ref('')
-    const openChat = function() {
-      if (option.value === 'chat') {
-        return
+    // 避免刷新使
+    option.value = window.sessionStorage.getItem('selectInfo')
+
+    const selectHandle = function(selectInfo) {
+      option.value = selectInfo
+      window.sessionStorage.setItem('selectInfo', option.value)
+      if (selectInfo === 'chat') {
+        router.push('msgList')
       }
-      option.value = 'chat'
-      router.push('msgList')
     }
 
-    const openUser = function() {
-      if (option.value === 'user') {
-        return
-      }
-      option.value = 'user'
-    }
     return {
       option,
-      openChat,
-      openUser
+      selectHandle
     }
   }
 }

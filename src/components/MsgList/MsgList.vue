@@ -6,24 +6,69 @@
       </div>
       <div class="user-list">
         <ul>
-          <li class="user-item">
+          <li
+            :class="{
+              'user-item': true,
+              selected: index === selectUserInfo.index ? true : false
+            }"
+            v-for="(item, index) in userItems"
+            :key="index"
+            @click="selectUser(item, index, $event)"
+          >
             <img src="./../../assets/img/avatar.jpg" alt="" />
-            <span>admin</span>
+            <span>{{ item }}</span>
           </li>
         </ul>
       </div>
     </div>
     <div class="message">
-      <MsgPanel name="admin"></MsgPanel>
+      <MsgPanel
+        :name="selectUserInfo.name"
+        v-if="selectUserInfo.name !== ''"
+      ></MsgPanel>
     </div>
   </div>
 </template>
 
 <script>
+import { reactive, getCurrentInstance, ref } from 'vue'
 import MsgPanel from './MsgPanel.vue'
+
+const getUser = async function(proxy) {
+  const { data } = await proxy.$http.get('/msgList')
+  return data
+}
+
 export default {
   setup() {
-    return {}
+    const { proxy } = getCurrentInstance()
+    const userItems = reactive([])
+    // 获取已经上线的用户
+    getUser(proxy).then(data => {
+      userItems.push(...data)
+      // console.log(data)
+    })
+    // 监听其他用户上线
+    proxy.$socket.on('upUser', data => {
+      // console.log(data)
+      userItems.push(data)
+    })
+
+    const selectUserInfo = reactive({
+      name: '',
+      index: -1
+    })
+    const selectUser = function(item, index) {
+      // console.log(e.currentTarget)
+      // e.currentTarget.style.backgroundColor = '#cacaca'
+      selectUserInfo.name = item
+      selectUserInfo.index = index
+    }
+    return {
+      userItems,
+      selectUser,
+      selectUserInfo
+    }
   },
   components: {
     MsgPanel
@@ -67,9 +112,13 @@ export default {
 
         span {
           line-height: 40px;
-          font-size: 24px;
+          font-size: 18px;
           margin-left: 10px;
         }
+      }
+
+      .selected {
+        background-color: #cacaca;
       }
     }
   }
