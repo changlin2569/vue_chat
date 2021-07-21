@@ -13,10 +13,10 @@
             }"
             v-for="(item, index) in userItems"
             :key="index"
-            @click="selectUser(item, index, $event)"
+            @click="selectUser(item.name, index, item.sId)"
           >
             <img src="./../../assets/img/avatar.jpg" alt="" />
-            <span>{{ item }}</span>
+            <span>{{ item.name }}</span>
           </li>
         </ul>
       </div>
@@ -24,6 +24,7 @@
     <div class="message">
       <MsgPanel
         :name="selectUserInfo.name"
+        :sId="selectUserInfo.sId"
         v-if="selectUserInfo.name !== ''"
       ></MsgPanel>
     </div>
@@ -45,8 +46,13 @@ export default {
     const userItems = reactive([])
     // 获取已经上线的用户
     getUser(proxy).then(data => {
-      userItems.push(...data)
       // console.log(data)
+      const myName = window.sessionStorage.getItem('myName')
+      userItems.push(
+        ...data.filter(item => {
+          return item.name !== myName
+        })
+      )
     })
     // 监听其他用户上线
     proxy.$socket.on('upUser', data => {
@@ -54,15 +60,27 @@ export default {
       userItems.push(data)
     })
 
+    // 监听用户下线
+    proxy.$socket.on('exit', exitName => {
+      // console.log(data)
+      for (let i = 0, len = userItems.length; i < len; i++) {
+        if (userItems[i].name === exitName) {
+          userItems.splice(i, 1)
+          break
+        }
+      }
+    })
+
     const selectUserInfo = reactive({
+      sId: '',
       name: '',
       index: -1
     })
-    const selectUser = function(item, index) {
-      // console.log(e.currentTarget)
+    const selectUser = function(name, index, sId) {
       // e.currentTarget.style.backgroundColor = '#cacaca'
-      selectUserInfo.name = item
+      selectUserInfo.name = name
       selectUserInfo.index = index
+      selectUserInfo.sId = sId
     }
     return {
       userItems,

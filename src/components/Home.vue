@@ -23,6 +23,20 @@
                 "
               ></i>
             </li>
+            <li @click="exitHandle">
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="退出登录"
+                placement="right-start"
+              >
+                <i
+                  class="
+                  el-icon-switch-button
+                "
+                ></i>
+              </el-tooltip>
+            </li>
           </ul>
         </div>
       </el-aside>
@@ -35,12 +49,14 @@
 
 <script>
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { ref, reactive, getCurrentInstance } from 'vue'
 export default {
   setup() {
+    const { proxy } = getCurrentInstance()
     const router = useRouter()
     const option = ref('')
-    // 避免刷新使
+    // const muneList = reactive(['chat', 'user', 'exit'])
+    // 避免刷新使选择的按钮恢复
     option.value = window.sessionStorage.getItem('selectInfo')
 
     const selectHandle = function(selectInfo) {
@@ -51,9 +67,16 @@ export default {
       }
     }
 
+    const exitHandle = function() {
+      proxy.$socket.close()
+      window.sessionStorage.clear()
+      router.push('/')
+    }
+
     return {
       option,
-      selectHandle
+      selectHandle,
+      exitHandle
     }
   }
 }

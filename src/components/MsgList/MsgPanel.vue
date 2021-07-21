@@ -5,7 +5,11 @@
     </div>
     <div class="main">
       <ul class="msg-panel">
-        <li class="msg-list" v-for="(item, index) in contentList" :key="index">
+        <li
+          class="msg-list"
+          v-for="(item, index) in contentList[name]"
+          :key="index"
+        >
           <div :class="item.type === 1 ? 'my-msg' : 'other-msg'">
             <div class="avatar">
               <img src="./../../assets/img/avatar.jpg" alt="" />
@@ -32,35 +36,44 @@ export default {
     name: {
       type: String,
       required: true
+    },
+    sId: {
+      type: String,
+      required: true
     }
   },
 
   setup(props) {
     const { proxy } = getCurrentInstance()
     const content = ref('')
-    const contentList = reactive([])
+    const contentList = reactive({})
     const sendMsg = function() {
       if (content.value.trim().length === 0) {
         return
       }
-      const fName = window.sessionStorage.getItem('name')
+      const toName = props.name
+      const fName = window.sessionStorage.getItem('myName')
       proxy.$socket.emit('sendMsg', {
-        toName: props.name,
+        toId: props.sId,
         fName,
         content: content.value
       })
-      contentList.push({
+      if (!Array.isArray(contentList[toName])) {
+        contentList[toName] = []
+      }
+      contentList[toName].push({
         type: 1,
         content: content.value
       })
       content.value = ''
     }
-    proxy.$socket.on('serveMsg', data => {
-      console.log(1)
-      console.log(data)
-      contentList.push({
+    proxy.$socket.on('serveMsg', (fName, content) => {
+      if (!Array.isArray(contentList[fName])) {
+        contentList[fName] = []
+      }
+      contentList[fName].push({
         type: 2,
-        content: data
+        content
       })
     })
     return {
