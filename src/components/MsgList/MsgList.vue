@@ -25,7 +25,6 @@
       <MsgPanel
         :name="selectUserInfo.name"
         :sId="selectUserInfo.sId"
-        v-if="selectUserInfo.name !== ''"
       ></MsgPanel>
     </div>
   </div>
@@ -53,6 +52,7 @@ export default {
           return item.name !== myName
         })
       )
+      // console.log(userItems)
     })
     // 监听其他用户上线
     proxy.$socket.on('upUser', data => {
