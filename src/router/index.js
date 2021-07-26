@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import Login from './../components/Login/Login.vue'
 import Home from './../components/Home.vue'
 import MsgList from './../components/MsgList/MsgList.vue'
+import Friends from './../components/Friends/Friends.vue'
 
 const routes = [
   {
@@ -18,7 +19,11 @@ const routes = [
     children: [
       {
         path: '/msgList',
-        component: MsgList,
+        component: MsgList
+      },
+      {
+        path: '/friends',
+        component: Friends
       }
     ]
   }

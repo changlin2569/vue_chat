@@ -25,6 +25,7 @@
       <MsgPanel
         :name="selectUserInfo.name"
         :sId="selectUserInfo.sId"
+        v-if="selectUserInfo.index !== -1"
       ></MsgPanel>
     </div>
   </div>

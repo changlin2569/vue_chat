@@ -7,22 +7,25 @@
             <li class="avatar">
               <img src="./../assets/img/avatar.jpg" alt="" />
             </li>
-            <li @click="selectHandle('chat')">
-              <i
-                :class="
-                  option === 'chat'
-                    ? 'el-icon-chat-line-round'
-                    : 'el-icon-chat-round'
-                "
-              ></i>
-            </li>
-            <li @click="selectHandle('user')">
-              <i
-                :class="
-                  option === 'user' ? 'el-icon-user-solid' : 'el-icon-user'
-                "
-              ></i>
-            </li>
+            <el-badge :is-dot="false" class="item"
+              ><li @click="selectHandle('chat')">
+                <i
+                  :class="
+                    option === 'chat'
+                      ? 'el-icon-chat-line-round'
+                      : 'el-icon-chat-round'
+                  "
+                ></i></li
+            ></el-badge>
+            <el-badge :is-dot="hasReq" class="item">
+              <li @click="selectHandle('user')">
+                <i
+                  :class="
+                    option === 'user' ? 'el-icon-user-solid' : 'el-icon-user'
+                  "
+                ></i>
+              </li>
+            </el-badge>
             <li @click="exitHandle">
               <el-tooltip
                 class="item"
@@ -50,12 +53,20 @@
 <script>
 import { useRouter } from 'vue-router'
 import { ref, reactive, getCurrentInstance } from 'vue'
+const getmsgs = async function(proxy) {
+  const name = window.sessionStorage.getItem('myName')
+  const { data } = await proxy.$http.get(`getMsg?name=${name}`)
+  return data
+}
 export default {
   setup() {
     const { proxy } = getCurrentInstance()
     const router = useRouter()
     const option = ref('')
-    // const muneList = reactive(['chat', 'user', 'exit'])
+    const hasReq = ref(false)
+    getmsgs(proxy).then(data => {
+      hasReq.value = data.hasReq
+    })
     // 避免刷新使选择的按钮恢复
     option.value = window.sessionStorage.getItem('selectInfo')
 
@@ -64,6 +75,9 @@ export default {
       window.sessionStorage.setItem('selectInfo', option.value)
       if (selectInfo === 'chat') {
         router.push('msgList')
+      } else {
+        router.push('friends')
+        hasReq.value = false
       }
     }
 
@@ -75,6 +89,7 @@ export default {
 
     return {
       option,
+      hasReq,
       selectHandle,
       exitHandle
     }
