@@ -5,11 +5,7 @@
     </div>
     <div class="main">
       <ul class="msg-panel">
-        <li
-          class="msg-list"
-          v-for="(item, index) in contentList[name]"
-          :key="index"
-        >
+        <li class="msg-list" v-for="(item, index) in contentList" :key="index">
           <div :class="item.type === 1 ? 'my-msg' : 'other-msg'">
             <div class="avatar">
               <img src="./../../assets/img/avatar.jpg" alt="" />
@@ -54,16 +50,20 @@ export default {
     sId: {
       type: String,
       required: true
+    },
+    contentList: {
+      type: Array,
+      required: true
     }
   },
 
   setup(props) {
     const { proxy } = getCurrentInstance()
     const content = ref('')
-    const contentList = reactive({})
+    // const contentList = reactive({})
     // 发送消息
     const sendMsg = function() {
-      if (!selectFile) {
+      if (!selectFile.value) {
         if (content.value.trim().length === 0) {
           return
         }
@@ -74,10 +74,10 @@ export default {
           fName,
           content: content.value
         })
-        if (!Array.isArray(contentList[toName])) {
-          contentList[toName] = []
-        }
-        contentList[toName].push({
+        // if (!Array.isArray(contentList[toName])) {
+        //   contentList[toName] = []
+        // }
+        props.contentList.push({
           type: 1,
           content: content.value
         })
@@ -86,16 +86,6 @@ export default {
         sendFileHandle()
       }
     }
-    // 接收消息
-    proxy.$socket.on('serveMsg', (fName, content) => {
-      if (!Array.isArray(contentList[fName])) {
-        contentList[fName] = []
-      }
-      contentList[fName].push({
-        type: 2,
-        content
-      })
-    })
 
     // 文件
     const selectFile = ref(false)
@@ -152,7 +142,7 @@ export default {
     return {
       content,
       sendMsg,
-      contentList,
+      // contentList,
       selectFile,
       fileChange
     }

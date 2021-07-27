@@ -16,7 +16,9 @@
             @click="selectUser(item.name, index, item.sId)"
           >
             <img src="./../../assets/img/avatar.jpg" alt="" />
-            <span>{{ item.name }}</span>
+            <el-badge is-dot class="item">
+              <span>{{ item.name }}</span>
+            </el-badge>
           </li>
         </ul>
       </div>
@@ -25,6 +27,7 @@
       <MsgPanel
         :name="selectUserInfo.name"
         :sId="selectUserInfo.sId"
+        :contentList="contentList[selectUserInfo.name]"
         v-if="selectUserInfo.index !== -1"
       ></MsgPanel>
     </div>
@@ -35,8 +38,8 @@
 import { reactive, getCurrentInstance, ref } from 'vue'
 import MsgPanel from './MsgPanel.vue'
 
-const getUser = async function(proxy) {
-  const { data } = await proxy.$http.get('/msgList')
+const getUpFriends = async function(proxy) {
+  const { data } = await proxy.$http.get('/upFriends')
   return data
 }
 
@@ -44,8 +47,9 @@ export default {
   setup() {
     const { proxy } = getCurrentInstance()
     const userItems = reactive([])
-    // 获取已经上线的用户
-    getUser(proxy).then(data => {
+    const contentList = reactive({})
+    // 获取已经上线的用户好友
+    getUpFriends(proxy).then(data => {
       // console.log(data)
       const myName = window.sessionStorage.getItem('myName')
       userItems.push(
@@ -82,11 +86,26 @@ export default {
       selectUserInfo.name = name
       selectUserInfo.index = index
       selectUserInfo.sId = sId
+      if (!Array.isArray(contentList[name])) {
+        contentList[name] = []
+      }
     }
+
+    // 接收消息
+    proxy.$socket.on('serveMsg', (fName, content) => {
+      if (!Array.isArray(contentList[fName])) {
+        contentList[fName] = []
+      }
+      contentList[fName].push({
+        type: 2,
+        content
+      })
+    })
     return {
       userItems,
       selectUser,
-      selectUserInfo
+      selectUserInfo,
+      contentList
     }
   },
   components: {
