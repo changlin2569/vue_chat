@@ -7,16 +7,15 @@
             <li class="avatar">
               <img src="./../assets/img/avatar.jpg" alt="" />
             </li>
-            <el-badge :is-dot="false" class="item"
-              ><li @click="selectHandle('chat')">
-                <i
-                  :class="
-                    option === 'chat'
-                      ? 'el-icon-chat-line-round'
-                      : 'el-icon-chat-round'
-                  "
-                ></i></li
-            ></el-badge>
+            <li @click="selectHandle('chat')">
+              <i
+                :class="
+                  option === 'chat'
+                    ? 'el-icon-chat-line-round'
+                    : 'el-icon-chat-round'
+                "
+              ></i>
+            </li>
             <el-badge :is-dot="hasReq" class="item">
               <li @click="selectHandle('user')">
                 <i
