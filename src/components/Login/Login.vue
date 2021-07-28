@@ -22,6 +22,9 @@
           <el-button @click="register">注册</el-button>
           <el-button type="primary" @click="loginHandle">登录</el-button>
         </div>
+        <div class="qr-box" @click="qrlogin">
+          <i class="el-icon-s-grid"></i>
+        </div>
       </div>
     </div>
     <!-- 注册对话框 -->
@@ -43,6 +46,25 @@
         <span class="dialog-footer">
           <el-button @click="registerCancel">取 消</el-button>
           <el-button type="primary" @click="registerHandle">确 定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 二维码登录对话框 -->
+    <el-dialog title="二维码登录" v-model="qrDialogVisible" width="30%">
+      <div class="qr">
+        <img src="./../../assets/img/qr.png" alt="" />
+      </div>
+      <input type="text" placeholder="请输入用户名" v-model="mobileName" />
+      <el-button @click="mobileLogin">获取token(模拟手机登录)</el-button>
+      <input type="text" placeholder="输入uuid,模拟扫码" v-model="uuid" />
+      <el-button @click="scanqrHandle">点击模拟扫码</el-button>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="qrDialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="qrDialogVisible = false"
+            >确 定</el-button
+          >
         </span>
       </template>
     </el-dialog>
@@ -114,6 +136,38 @@ export default {
         registerDialogVisible.value = false
       })
     }
+
+    // 二维码登录
+    const qrDialogVisible = ref(false)
+    const mobileName = ref('')
+    const uuid = ref('')
+    proxy.$socket.on('uuid', data => {
+      console.log(data)
+    })
+    const qrlogin = function() {
+      qrDialogVisible.value = true
+      proxy.$socket.emit('qrlogin')
+    }
+    // 模拟手机登录
+    const mobileLogin = async function() {
+      if (!mobileName.value.trim().length) {
+        ElMessage.error('请输入用户名')
+      }
+      const { data } = await proxy.$http.post('/mobileLogin', {
+        mobileName: mobileName.value
+      })
+      if (data.status !== 200) {
+        ElMessage.error(data.msg)
+      }
+      window.sessionStorage.setItem('token', data.token)
+      // 模拟扫码操作
+      const scanqrHandle = async function() {
+        if (!uuid.value.trim().length) {
+          ElMessage.error('请输入uuid')
+        }
+        proxy.$http.post('/qrlogin')
+      }
+    }
     return {
       loginFormRef,
       loginForm,
@@ -123,7 +177,13 @@ export default {
       registerDialogVisible,
       register,
       registerCancel,
-      registerHandle
+      registerHandle,
+      qrDialogVisible,
+      qrlogin,
+      mobileName,
+      mobileLogin,
+      uuid,
+      scanqrHandle
     }
   }
 }
@@ -170,7 +230,22 @@ export default {
         top: 60px;
         left: 30px;
       }
+
+      .qr-box {
+        position: absolute;
+        // width: 40px;
+        // height: 40px;
+        bottom: 40px;
+        right: 40px;
+        cursor: pointer;
+      }
     }
+  }
+
+  .qr {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
   }
 }
 </style>
