@@ -59,6 +59,10 @@
       <el-button @click="mobileLogin">获取token(模拟手机登录)</el-button>
       <input type="text" placeholder="输入uuid,模拟扫码" v-model="uuid" />
       <el-button @click="scanqrHandle">点击模拟扫码</el-button>
+      <div v-if="qrtype === 'scanned'">
+        <el-button type="warning">取消</el-button>
+        <el-button type="primary" @click="mobileConfirm">确认</el-button>
+      </div>
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="qrDialogVisible = false">取 消</el-button>
@@ -141,8 +145,10 @@ export default {
     const qrDialogVisible = ref(false)
     const mobileName = ref('')
     const uuid = ref('')
-    proxy.$socket.on('uuid', data => {
+    const qrtype = ref('')
+    proxy.$socket.on('qrtype', data => {
       console.log(data)
+      qrtype.value = data.type
     })
     const qrlogin = function() {
       qrDialogVisible.value = true
@@ -158,15 +164,35 @@ export default {
       })
       if (data.status !== 200) {
         ElMessage.error(data.msg)
+        return
       }
       window.sessionStorage.setItem('token', data.token)
-      // 模拟扫码操作
-      const scanqrHandle = async function() {
-        if (!uuid.value.trim().length) {
-          ElMessage.error('请输入uuid')
-        }
-        proxy.$http.post('/qrlogin')
+      ElMessage.success('获取成功')
+    }
+    // 模拟扫码操作
+    const scanqrHandle = async function() {
+      if (!uuid.value.trim().length) {
+        ElMessage.error('请输入uuid')
       }
+      const { data } = await proxy.$http.post('/qrlogin', {
+        uuid: uuid.value
+      })
+      if (data.status !== 200) {
+        ElMessage.error(data.msg)
+        return
+      }
+    }
+    // 模拟手机点击确认登录
+    const mobileConfirm = async function() {
+      const { data } = await proxy.$http.post('/mobileConfirm', {
+        uuid: uuid.value
+      })
+      if (data.status !== 200) {
+        ElMessage.error(data.msg)
+        return
+      }
+      router.push('/home')
+      proxy.$socket.emit('up', mobileName.value)
     }
     return {
       loginFormRef,
@@ -183,7 +209,9 @@ export default {
       mobileName,
       mobileLogin,
       uuid,
-      scanqrHandle
+      scanqrHandle,
+      qrtype,
+      mobileConfirm
     }
   }
 }
