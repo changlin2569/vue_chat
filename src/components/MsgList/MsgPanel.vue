@@ -127,9 +127,10 @@ export default {
       // 并发上传切片
       await Promise.all(uploadFileList)
       // 切片上传完毕发送合并请求
-      // await proxy.$http.post('merge', {
-      //   name: fileInfo[0].name
-      // })
+      await proxy.$http.post('merge', {
+        name: fileInfo[0].name,
+        size: fileInfo[0].size
+      })
     }
     // 点击发送文件
     const sendFileHandle = function() {
