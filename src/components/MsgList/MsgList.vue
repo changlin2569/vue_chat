@@ -16,14 +16,13 @@
             @click="selectUser(item.name, index, item.sId)"
           >
             <img src="./../../assets/img/avatar.jpg" alt="" />
-            <el-badge is-dot class="item">
-              <span>{{ item.name }}</span>
-            </el-badge>
+            <span>{{ item.name }}</span>
           </li>
         </ul>
       </div>
     </div>
     <div class="message">
+      <!-- v-if="selectUserInfo.index !== -1" -->
       <MsgPanel
         :name="selectUserInfo.name"
         :sId="selectUserInfo.sId"
